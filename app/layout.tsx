@@ -1,11 +1,12 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import React from "react";
 
 // Load only Poppins
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"], // Choose weights as needed
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -18,8 +19,11 @@ export const metadata = {
   },
 };
 
-
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased bg-[#10172A]`}>

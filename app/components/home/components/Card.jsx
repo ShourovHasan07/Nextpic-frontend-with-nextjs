@@ -203,15 +203,19 @@ export default function Card({ item, type }) {
             </div>
 
             {/* Description */}
-            <p className="card_description">
-              {item.description}{" "}
-              <span
-                className="text-[#5799EF] cursor-pointer"
-                onClick={openModal}
-              >
-                More
-              </span>
-            </p>
+            {/* Description */}
+<div className="flex items-center ">
+  <p className="card_description truncate ">
+    {item.description}
+  </p>
+
+  <span
+    className="text-[#5799EF] cursor-pointer shrink-0"
+    onClick={openModal}
+  >
+    More
+  </span>
+</div>
           </div>
 
           {/* Buttons pinned at bottom */}
