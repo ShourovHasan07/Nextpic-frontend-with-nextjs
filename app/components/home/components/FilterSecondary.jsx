@@ -8,6 +8,11 @@ import netflix from "@/public/assets/netflix.png";
 export default function FilterSecondary() {
     const [showFilter, setShowFilter] = useState(false);
 
+
+    
+
+
+
     const moviePlatforms = [
         { name: "Netflix", img: "/assets/netflix.png" },
         { name: "Prime Video", img: "/assets/prime.png" },

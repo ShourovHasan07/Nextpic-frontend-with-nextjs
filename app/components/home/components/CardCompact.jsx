@@ -38,6 +38,11 @@ const getBookmarkIcon = (type) => {
 };
 
 export default function Card({ item, type }) {
+
+
+  //console.log ("item from series card",item)
+
+
   const bookmarkIcon = getBookmarkIcon(type);
   const modalRef = useRef(null);
 
@@ -200,16 +205,19 @@ export default function Card({ item, type }) {
             {/* Title */}
             <h3 className="card_title">{item.title}</h3>
 
-            {/* Description */}
-            <p className="card_description mt-0">
-              {item.description}{" "}
-              <span
-                className="text-[#5799EF] cursor-pointer"
-                onClick={openModal}
-              >
-                More
-              </span>
-            </p>
+           {/* Description */}
+<div className="flex items-center ">
+  <p className="card_description truncate ">
+    {item.description}
+  </p>
+
+  <span
+    className="text-[#5799EF] cursor-pointer shrink-0"
+    onClick={openModal}
+  >
+    More
+  </span>
+</div>
           </div>
 
           {/* Buttons pinned at bottom */}

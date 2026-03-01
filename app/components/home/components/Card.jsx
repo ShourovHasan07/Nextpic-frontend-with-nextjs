@@ -37,9 +37,16 @@ const getBookmarkIcon = (type) => {
   }
 };
 
-export default function Card({ item, type }) {
+export default function Card({ item, type })
+
+
+
+{
   const bookmarkIcon = getBookmarkIcon(type);
   const modalRef = useRef(null);
+
+
+ // console.log("items in card jsx componnet props ",item)
 
   const shadowColor = {
     movie: "hover:shadow-[0_5px_10px_rgba(138,56,245,1)]",
@@ -202,7 +209,7 @@ export default function Card({ item, type }) {
               ))}
             </div>
 
-            {/* Description */}
+          
             {/* Description */}
 <div className="flex items-center ">
   <p className="card_description truncate ">

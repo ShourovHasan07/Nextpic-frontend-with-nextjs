@@ -1,71 +1,48 @@
+"use client"
+import { useEffect, useState } from "react";
+import { FrontendApiHelper } from "@/app/utils/frontendApiHelper";
+
+
+
+
 import SeriesCard from "./CardCompact";
 
-const dummySeries = [
-    {
-        title: "Stranger Things",
-        year: "2008",
-        genres: ["Action", "Action"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series1.png",
-    },
-    {
-        title: "Breaking Bad",
-        year: "2008",
-        genres: ["Action", "Action"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series2.png",
-    },
-    {
-        title: "Game of Thrones",
-        year: "2008",
-        genres: ["Fantasy", "Drama"],
-        rating: 9.2,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series3.png",
-    },
-    {
-        title: "The Witcher",
-        year: "2019",
-        genres: ["Adventure", "Fantasy"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series4.png",
-    },
-    {
-        title: "Peaky Blinders",
-        year: "2008",
-        genres: ["Action", "Action"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series5.png",
-    },
-    {
-        title: "Money Heist",
-        year: "2008",
-        genres: ["Action", "Action"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series6.png",
-    },
-    {
-        title: "Breaking Bad",
-        year: "2008",
-        genres: ["Action", "Drama"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series2.png",
-    },
-    {
-        title: "The Witcher",
-        year: "2019",
-        genres: ["Adventure", "Fantasy"],
-        rating: 8.9,
-        description: "Batman battles the Joker, facing...",
-        image: "/assets/series4.png",
-    },
-];
+
+
+
+// Movie interface
+export interface Movie {
+    id?: number;
+    title: string;
+    year: string | number;
+    genres: string[];
+    rating: number;
+    description: string;
+    image: string;
+  }
+
+
+  const genreMap: Record<number, string> = {
+    10759: "Action & Adventure",
+    16: "Animation",
+    35: "Comedy",
+    80: "Crime",
+    99: "Documentary",
+    18: "Drama",
+    10751: "Family",
+    10762: "Kids",
+    9648: "Mystery",
+    10763: "News",
+    10764: "Reality",
+    10765: "Sci-Fi & Fantasy",
+    10766: "Soap",
+    10767: "Talk",
+    10768: "War & Politics",
+    37: "Western",
+  };
+
+
+
 
 const moviePlatforms = [
     { name: "Netflix", img: "/assets/netflix.png" },
@@ -76,6 +53,79 @@ const moviePlatforms = [
 ];
 
 export function SeriesGrid() {
+
+    const [Seriess, setSeries] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [buttonLoading, setButtonLoading] = useState(false);
+
+  const [page, setPage] = useState(1); // page for Show More
+  const [hasMore, setHasMore] = useState(true);
+  
+  
+  // check if more movies available
+
+
+
+  const getSeries = async (pageNumber = 1) => {
+    try {
+      const data = await FrontendApiHelper(`/home?page=${pageNumber}`);
+  
+      if (!data?.popularSeries || data.popularSeries.length === 0) {
+        setHasMore(false);
+        return;
+      }
+  
+      const mappedSeries: Movie[] = data.popularSeries.map((m: any) => ({
+        id: m.id,
+        title: m.name, // TV series uses name
+        year: m.first_air_date?.split("-")[0] || "Unknown",
+        rating: m.vote_average,
+        description: m.overview,
+        image: m.poster_path
+          ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+          : "/assets/default.png",
+        genres: (m.genre_ids || []).map((id: number) => genreMap[id] || "Unknown"),
+      }));
+  
+      setSeries(mappedSeries);
+  
+      if (mappedSeries.length < 8) setHasMore(false);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+   // initial fetch
+   useEffect(() => {
+    getSeries();
+  }, []);
+
+  const handleShowMore = async () => {
+    setButtonLoading(true);       
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await getSeries(nextPage);    
+    setButtonLoading(false);      
+  };
+  
+
+  if (!Seriess.length) {
+    return <p className="text-white text-center py-4">No movies found</p>;
+  }
+
+
+
+
+
+
+
+
+
     return (
         <div className="min-[769px]:px-12 px-4">
             <h3 className="cards_section_title_compact_2 pt-0">Series</h3>
@@ -145,7 +195,7 @@ export function SeriesGrid() {
                 <div
                     className="cards_grid_section_compact min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr pb-2"
                 >
-                    {dummySeries.map((series, index) => (
+                    {Seriess.map((series, index) => (
                         <div className="min-w-[207px] flex-shrink-0 md:flex-shrink min-[769px]:min-w-0" key={index}>
                             <SeriesCard item={series} type="series" />
                         </div>
@@ -153,14 +203,31 @@ export function SeriesGrid() {
                 </div>
             </div>
 
-            {/* Show More Button */}
-            <div className="item_center md:mb-12 mb-2">
-                <button className="series_show_more_btn">
-                    Show More
-                </button>
-            </div>
+           {/* Show More Button */}
+      {/* Show More Button */}
+      {hasMore && (
+        <div className="item_center min-[769px]:mb-12 mb-2">
+          <button
+           className="movie_show_more_btn"
+            onClick={handleShowMore}
+
+            disabled={buttonLoading}
+          
+          > Show More
+
+    {buttonLoading ? (
+        <>
+          <span className="loading loading-spinner text-secondary"></span>
+        
+        </>
+      ) : (
+        ""
+      )}
+          </button>
+        </div>
+      )}
         </div>
     );
 }
 
-export default dummySeries;
+//export default dummySeries;

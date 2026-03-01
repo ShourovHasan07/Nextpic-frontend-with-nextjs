@@ -47,6 +47,7 @@ const genreMap: Record<number, string> = {
 export function MovieGrid() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true); // check if more movies available
@@ -61,6 +62,8 @@ export function MovieGrid() {
         return;
       }
 
+      //console.log ("data movies data home :",data)
+
       const mappedMovies: Movie[] = data.popularMovies.map((m: any) => ({
         id: m.id,
         title: m.title,
@@ -74,7 +77,7 @@ export function MovieGrid() {
       }));
 
       // append new movies
-      setMovies((prev) => [...prev, ...mappedMovies]);
+      setMovies(mappedMovies);
 
       // check if next page exists
       if (mappedMovies.length < 8) setHasMore(false);
@@ -91,15 +94,15 @@ export function MovieGrid() {
     getMovies();
   }, []);
 
-  const handleShowMore = () => {
+  const handleShowMore = async () => {
+    setButtonLoading(true);       
     const nextPage = page + 1;
     setPage(nextPage);
-    getMovies(nextPage);
+    await getMovies(nextPage);    
+    setButtonLoading(false);      
   };
 
-  if (loading && movies.length === 0) {
-    return <p className="text-white text-center py-4">Loading movies...</p>;
-  }
+ 
 
   if (!movies.length) {
     return <p className="text-white text-center py-4">No movies found</p>;
@@ -125,8 +128,22 @@ export function MovieGrid() {
       {/* Show More Button */}
       {hasMore && (
         <div className="item_center min-[769px]:mb-12 mb-2">
-          <button className="movie_show_more_btn" onClick={handleShowMore}>
-            Show More
+          <button
+           className="movie_show_more_btn"
+            onClick={handleShowMore}
+
+            disabled={buttonLoading}
+          
+          > Show More
+
+    {buttonLoading ? (
+        <>
+          <span className="loading loading-spinner text-secondary"></span>
+        
+        </>
+      ) : (
+        ""
+      )}
           </button>
         </div>
       )}
