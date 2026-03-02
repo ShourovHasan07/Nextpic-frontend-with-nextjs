@@ -19,7 +19,7 @@ import BooksBMd from "@/public/assets/BooksBMd.png";
 import bookmark_white_2 from "@/public/assets/bookmark_white_2.png";
 import sign_in from "@/public/assets/sign_in.png";
 import star from "@/public/assets/star.png";
-import { useRef } from "react";
+import { useId, useRef } from "react";
 
 // Helper function to get the correct bookmark icon path
 const getBookmarkIcon = (type) => {
@@ -41,9 +41,17 @@ export default function Card({ item, type })
 
 
 
+
+
+
+
 {
   const bookmarkIcon = getBookmarkIcon(type);
   const modalRef = useRef(null);
+
+
+  // Generate a stable unique base ID for this component instance
+  const baseId = useId();
 
 
  // console.log("items in card jsx componnet props ",item)
@@ -490,7 +498,7 @@ export default function Card({ item, type })
                 <p className="font-semibold">Watch Now</p>
                 <div className="filter2_movies_platform_div flex-nowrap md:grid lg:grid-cols-3 grid-cols-2 md:gap-6 gap-3 flex md:flex-none overflow-x-auto md:overflow-visible pt-6">
                   {moviePlatforms.map((platform, index) => {
-                    const id = `platform_new_${index + Math.random()}`;
+                    const id = `${baseId}-platform-${index}`;;
                     return (
                       <div key={id} className="min-w-[120px] md:min-w-0">
                         {" "}
