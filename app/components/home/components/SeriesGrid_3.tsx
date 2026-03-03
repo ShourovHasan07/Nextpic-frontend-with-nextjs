@@ -21,6 +21,13 @@ export interface Movie {
     image: string;
   }
 
+  interface SeriesGridProps {
+  moodId: string;
+}
+
+
+
+
 
   const genreMap: Record<number, string> = {
     10759: "Action & Adventure",
@@ -52,7 +59,7 @@ const moviePlatforms = [
     { name: "HBO Max", img: "/assets/hbo.png" }
 ];
 
-export function SeriesGrid() {
+export function SeriesGrid({ moodId }: SeriesGridProps) {
 
     const [Seriess, setSeries] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,55 +74,107 @@ export function SeriesGrid() {
 
 
 
-  const getSeries = async (pageNumber = 1) => {
-    try {
-      const data = await FrontendApiHelper(`/home?page=${pageNumber}`);
-  
-      if (!data?.popularSeries || data.popularSeries.length === 0) {
-        setHasMore(false);
-        return;
-      }
-  
-      const mappedSeries: Movie[] = data.popularSeries.map((m: any) => ({
-        id: m.id,
-        title: m.name, // TV series uses name
-        year: m.first_air_date?.split("-")[0] || "Unknown",
-        rating: m.vote_average,
-        description: m.overview,
-        image: m.poster_path
-          ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-          : "/assets/default.png",
-        genres: (m.genre_ids || []).map((id: number) => genreMap[id] || "Unknown"),
-      }));
-  
-      setSeries(mappedSeries);
-  
-      if (mappedSeries.length < 8) setHasMore(false);
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const getSeries = async (pageNumber = 1) => {
+   setLoading(true); // loading start
+   try {
+     // URL Build  debug log
+     let url = "";
+ 
+     if (!moodId || moodId === "") {
+       // Home page call
+       url = `/home?page=${pageNumber}`;
+     } else {
+       // Mood-specific call
+       url = `/moods/${moodId}/series?page=${pageNumber}`;
+     }
+ 
+     // Debug: final URL
+     const finalUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`;
+     console.log("Calling API URL:", finalUrl);
+ 
+     // API call
+     const data = await FrontendApiHelper(url);
+ 
+     if (!data) {
+       console.warn("API returned null or undefined!");
+       setHasMore(false);
+       setSeries([]);
+       return;
+     }
+ 
+     console.log("Raw API Response:", data);
+ 
+     //  Mood API return array directly or data.movies
+     const seriesList: any[] = Array.isArray(data)
+       ? data
+       : data.movies || data.popularMovies || [];
+ 
+     console.log("Parsed seriesList:", seriesList);
+ 
+     if (!seriesList.length) {
+       setHasMore(false);
+       setSeries([]);
+       return;
+     }
+ 
+     // Map API data to Movie interface
+     const mapped: Movie[] = seriesList.map((m: any) => ({
+       id: m.id,
+       title: m.title,
+       year: m.release_date?.split("-")[0] || "Unknown",
+       rating: m.vote_average || 0,
+       description: m.overview || "No description",
+       image: m.poster_path
+         ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+         : "/assets/default.png",
+       genres: (m.genre_ids || []).map((id: number) => genreMap[id] || "Unknown"),
+     }));
+ 
+     // Pagination: first page replace, next pages append
+     if (pageNumber === 1) {
+       setSeries(mapped);
+     } else {
+       setSeries(mapped);
+     }
+ 
+     // Show More button logic: check if less than 8 items fetched → no more
+     setHasMore(mapped.length === 8);
+ 
+   } catch (err) {
+     console.error("Fetch error:", err);
+     setHasMore(false);
+   } finally {
+     setLoading(false); // loading end
+   }
+ };
 
-
-   // initial fetch
-   useEffect(() => {
-    getSeries();
+   //  initial load
+  useEffect(() => {
+    getSeries(1);
   }, []);
 
+  //  mood change
+  useEffect(() => {
+    if (!moodId) return;
+    setPage(1);
+    getSeries(1);
+  }, [moodId]);
+
   const handleShowMore = async () => {
-    setButtonLoading(true);       
+    setButtonLoading(true);
     const nextPage = page + 1;
     setPage(nextPage);
-    await getSeries(nextPage);    
-    setButtonLoading(false);      
+    await getSeries(nextPage);
+    setButtonLoading(false);
   };
+
+  if (loading && Seriess.length === 0) return <p>Loading series...</p>;
+  if (!loading && !Seriess.length) return <p>No series found</p>;
+  //if mood  change ? than  fetch 
   
 
   if (!Seriess.length) {
-    return <p className="text-white text-center py-4">No movies found</p>;
+    return <p className="text-white text-center py-4">No series found</p>;
   }
 
 

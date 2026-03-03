@@ -17,6 +17,9 @@ export interface Movie {
 
 interface MovieGridProps {
   moodId: string;
+
+   showSecondaryFilter: boolean;
+
 }
 
 
@@ -60,9 +63,10 @@ const moviePlatforms = [
 
 
 // MovieGrid Component
-export function MovieGrid({ moodId }: MovieGridProps) {
+export function MovieGrid ({ moodId, showSecondaryFilter }: MovieGridProps) {
 
   console.log("Mood ID:", moodId);
+  console.log("Show Secondary Filter:", showSecondaryFilter);
 
 
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -71,6 +75,8 @@ export function MovieGrid({ moodId }: MovieGridProps) {
 
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true); // check if more movies available
+  
+
 
 const getMovies = async (pageNumber = 1) => {
   setLoading(true); // loading start
@@ -132,7 +138,7 @@ const getMovies = async (pageNumber = 1) => {
     if (pageNumber === 1) {
       setMovies(mapped);
     } else {
-      setMovies(prev => [...prev, ...mapped]);
+      setMovies(mapped);
     }
 
     // Show More button logic: check if less than 8 items fetched → no more
@@ -181,8 +187,10 @@ const getMovies = async (pageNumber = 1) => {
     <div className="min-[769px]:px-12 px-4">
       <h3 className="cards_section_title">Movie</h3>
 
-       <div>
-                <div className="movie_reset_2_div">
+        {showSecondaryFilter &&
+
+       <div    >
+                <div  className="movie_reset_2_div">
                     <p className="movie_reset_2_text">Genres (Choose a Genre)</p>
                     <button className="movie_reset_2_btn">Reset All</button>
                 </div>
@@ -251,7 +259,7 @@ const getMovies = async (pageNumber = 1) => {
                     })}
                 </div>
                 <p className="card_pass_message">Click pass to remove already watched/unwanted items</p>
-            </div>
+            </div>}
 
 
 

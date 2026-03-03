@@ -20,18 +20,23 @@ interface Mood  {
   name: string;
 }
 
-
-
 interface FilterProps {
-  onMoodSelect: (moodId: string) => void; // parent component will pass this function to receive selected mood ID
+  onMoodSelect: (moodId: string) => void;
+  onToggleFilter: () => void; // 
 }
 
 
-export default function Filter({ onMoodSelect }: FilterProps) {
+
+
+
+
+export default function Filter({ onMoodSelect, onToggleFilter }: FilterProps) {
 
  const [moods, setMoods] = useState<Mood[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  
 
 
 
@@ -94,7 +99,12 @@ export default function Filter({ onMoodSelect }: FilterProps) {
           <span className="inline-flex items-center gap-3 filter_compact_parent">
             touch
             {/* filter_compact_btn_active */}
-            <div className="filter_compact_btn tooltip" data-tip="Customize Your Picks">
+            <div className="filter_compact_btn tooltip" 
+
+             onClick={onToggleFilter} 
+
+
+            data-tip="Customize Your Picks">
               <Image src={filter} alt="filter" />
             </div>
           </span>
