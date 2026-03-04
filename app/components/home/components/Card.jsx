@@ -37,7 +37,10 @@ const getBookmarkIcon = (type) => {
   }
 };
 
-export default function Card({ item, type })
+export default function Card({ item, type,onClick,details})
+
+
+
 
 
 
@@ -46,6 +49,29 @@ export default function Card({ item, type })
 
 
 {
+
+  const data = details || item;// here 2 api dat are mearge  popular movie and movie by id 
+
+   console.log ("detailsData in card jsx component props ",details)
+
+
+
+
+  
+
+  const openModal = async () => {
+    if (onClick) {
+      await onClick(); // 
+    }
+    modalRef.current?.showModal(); 
+  };
+
+
+
+
+
+
+
   const bookmarkIcon = getBookmarkIcon(type);
   const modalRef = useRef(null);
 
@@ -66,9 +92,9 @@ export default function Card({ item, type })
   // Reference for bookmark modal
   const bookmarkModalRef = useRef(null);
 
-  const openModal = () => {
-    modalRef.current?.showModal(); // open main card modal
-  };
+  // const openModal = () => {
+  //   modalRef.current?.showModal(); // open main card modal
+  // };
 
   const closeModal = () => {
     modalRef.current?.close(); // close main card modal
@@ -128,8 +154,8 @@ export default function Card({ item, type })
           onClick={openModal} // opens main modal
         >
           <Image
-            src={item.image}
-            alt={item.title}
+            src={data.image}
+            alt={data.title}
             width={210}
             height={315}
             className="card_poster_img"
@@ -138,7 +164,7 @@ export default function Card({ item, type })
           {/* rating */}
           <div className="card_tag_div_3">
             <Image src={star} alt="star" />
-            <span>{item.rating}/10</span>
+            <span>{data.rating}/10</span>
           </div>
           {/* Bookmark icon */}
           <label
@@ -205,12 +231,12 @@ export default function Card({ item, type })
         <div className="card_content_div flex flex-col flex-grow">
           <div className="text_section flex-grow">
             {/* Title */}
-            <h3 className="card_title">{item.title}</h3>
+            <h3 className="card_title">{data.title}</h3>
 
             {/* Year and Tags */}
             <div className="card_tag_div">
-              <span>{item.year}</span>
-              {item.genres.map((genre, idx) => (
+              <span>{data.year}</span>
+              {data.genres.map((genre, idx) => (
                 <span key={idx} className="card_year">
                   {genre}
                 </span>
@@ -359,17 +385,25 @@ export default function Card({ item, type })
                     Overview
                   </h4>
                   <p className="text-base">
-                    The epic conclusion to over a decade of storytelling in the
-                    Marvel Cinematic Universe, Avengers: Endgame picks up in the
-                    aftermath of the devastating events of Infinity War (2018).
-                    With half of all life across the universe erased by Thanos
-                    snap, the remaining Avengers must regroup, mourn, and find a
-                    way to undo the destruction.
+                   {data.description}
                   </p>
                   <p className="text-base pt-6 pb-2.5">
                     <span className="font-semibold">Directors: </span>
-                    <span className="text-[#8A38F5]">Anthony Russo</span>,{" "}
-                    <span className="text-[#8A38F5]">Joe Russo</span>
+                    
+                   {details ? (
+  details.directors?.length > 0 ? (
+    details.directors.map((director, index) => (
+      <span key={index} className="text-[#8A38F5]">
+        {director}
+        {index < details.directors.length - 1 && ", "}
+      </span>
+    ))
+  ) : (
+    <span className="text-gray-400">N/A</span>
+  )
+) : (
+  <span className="text-gray-400">Loading...</span>
+)}
                   </p>
                   <p className="text-base">
                     <span className="font-semibold">Writers: </span>
@@ -465,14 +499,14 @@ export default function Card({ item, type })
               ) : (
                 /* Cast section */
                 <div className="md:grid flex xl:gap-6 gap-4 overflow-x-auto grid-cols-2 xl:grid-cols-4 lg:grid-cols-3 max-w-[888px] w-full">
-                  {avengers.map((hero, idx) => (
+                  {details?.top_cast?.map((hero, idx) => (
                     <div
                       key={idx}
                       className="rounded-[20px] h-full overflow-hidden transition-transform duration-300 min-w-[180px] md:min-w-auto"
                     >
-                      <div className="relative w-full h-48">
+                      <div className="relative w-full  h-48">
                         <Image
-                          src={hero.img}
+                          src={hero.image}
                           alt={hero.name}
                           fill
                           className="object-cover"
@@ -480,7 +514,7 @@ export default function Card({ item, type })
                       </div>
                       <div className="p-4 text-center text-white bg-black/30 h-full">
                         <h4 className="font-bold">{hero.name}</h4>
-                        <p className="text-white">({hero.role})</p>
+                        <p className="text-white">({hero.character})</p>
                       </div>
                     </div>
                   ))}

@@ -107,7 +107,7 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
      //  Mood API return array directly or data.movies
      const seriesList: any[] = Array.isArray(data)
        ? data
-       : data.movies || data.popularMovies || [];
+       : data.movies || data.popularSeries || [];
  
      console.log("Parsed seriesList:", seriesList);
  
