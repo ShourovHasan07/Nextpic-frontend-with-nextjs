@@ -26,6 +26,30 @@ export interface Movie {
 }
 
 
+export interface SeriesDetails {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  backdrop: string;
+  release_date: string;
+  release_year: string;
+  runtime: number;
+  rating: number;
+  percentage: number;
+  genres: string[];
+
+  top_cast: {
+    id: number;
+    name: string;
+    character: string;
+    image: string;
+  }[];
+
+  certification: string;
+}
+
+
 
 
 
@@ -68,6 +92,9 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
 
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true);
+
+   const [selectedMovieDetails, setSelectedMovieDetails] =
+    useState<SeriesDetails | null>(null);
   
   
   // check if more movies available

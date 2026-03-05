@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FrontendApiHelper } from "@/app/utils/frontendApiHelper";
 import MovieCard from "./Card";
+import { getRegion } from "@/app/utils/getRegion";
 
 // Movie interface
 export interface Movie {
@@ -97,7 +98,7 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true); // check if more movies available
 
-  // ✅ declare selectedMovie state
+  //  declare selectedMovie state
   const [selectedMovieDetails, setSelectedMovieDetails] =
   useState<MovieDetails | null>(null);
   // fetch movies
@@ -153,7 +154,10 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
   // fetch single movie detail
   const getMovieDetails = async (id: number) => {
     try {
-      const res = await FrontendApiHelper(`/details/movie/${id}?type=1`);
+    const region = getRegion(); // automatically detect region
+
+     console.log("Detected region:", region);
+    const res = await FrontendApiHelper(`/details/movie/${id}?type=1`);
       if (res && res.success) {
         setSelectedMovieDetails(res.data); //  set state to send to Card
         return res.data;

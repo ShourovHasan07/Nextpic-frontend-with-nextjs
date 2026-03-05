@@ -106,32 +106,7 @@ export default function Card({ item, type,onClick,details})
     bookmarkModalRef.current?.showModal(); // open bookmark modal
   };
 
-  const avengers = [
-    {
-      name: "Robert Downey Jr.",
-      role: "Tony Stark",
-      img: "/assets/robert.png",
-    },
-    { name: "Chris Evans", role: "Steve Rogers", img: "/assets/evans.png" },
-    { name: "Mark Ruffalo", role: "Bruce Banner", img: "/assets/mark.png" },
-    { name: "Chris Hemsworth", role: "Thor", img: "/assets/chris.png" },
-    {
-      name: "Scarlett Johansson",
-      role: "Natasha Romanoff",
-      img: "/assets/scarlett.png",
-    },
-    { name: "Don Cheadle", role: "James Rhodes", img: "/assets/don.png" },
-    { name: "Paul Rudd", role: "Scott Lang", img: "/assets/paul.png" },
-    {
-      name: "Benedict Cumberbatch",
-      role: "Doctor Strange",
-      img: "/assets/benedict.png",
-    },
-    { name: "Chadwick Boseman", role: "T’Challa", img: "/assets/chadwick.png" },
-    { name: "Brie Larson", role: "Carlo Dancers", img: "/assets/brie.png" },
-    { name: "Tom Holland", role: "Peter Parker", img: "/assets/tom.png" },
-    { name: "Karen Gillan", role: "Nebula", img: "/assets/karen.png" },
-  ];
+ 
 
   const moviePlatforms = [
     { name: "Netflix", img: "/assets/netflix.png" },
@@ -280,8 +255,8 @@ export default function Card({ item, type,onClick,details})
         style={{ maxHeight: "100vh" }} // limit dialog height to 90% viewport height
         onClick={(e) => {
           if (e.target === modalRef.current) {
-            closeModal(); // ✅ closes only when clicking backdrop
-            e.stopPropagation(); // ✅ prevents reopening from card click
+            closeModal(); // closes only when clicking backdrop
+            e.stopPropagation(); //prevents reopening from card click
           }
         }}
       >
@@ -350,7 +325,7 @@ export default function Card({ item, type,onClick,details})
                       }}
                     >
                       <span className="md:text-xl font-bold text-white">
-                        75%
+                       {data?.percentage}%
                       </span>
                     </div>
                   </div>
@@ -402,17 +377,10 @@ export default function Card({ item, type,onClick,details})
     <span className="text-gray-400">N/A</span>
   )
 ) : (
-  <span className="text-gray-400">Loading...</span>
+  <span className="text-gray-400">""</span>
 )}
                   </p>
-                  <p className="text-base">
-                    <span className="font-semibold">Writers: </span>
-                    <span className="text-[#8A38F5]">
-                      Christopher Markus
-                    </span>,{" "}
-                    <span className="text-[#8A38F5]">Stephen McFeely</span>,{" "}
-                    <span className="text-[#8A38F5]">Stan Lee</span>
-                  </p>
+                  
                 </div>
               </div>
             </div>
@@ -506,7 +474,7 @@ export default function Card({ item, type,onClick,details})
                     >
                       <div className="relative w-full  h-48">
                         <Image
-                          src={hero.image}
+                          src={hero?.image || "/chris.png"}
                           alt={hero.name}
                           fill
                           className="object-cover"
@@ -529,9 +497,10 @@ export default function Card({ item, type,onClick,details})
                   <Image src={eye} alt="eye" />
                   <span>Marked as Watched</span>
                 </button>
-                <p className="font-semibold">Watch Now</p>
+                <p className="font-semibold">Watch Now  
+                ( {details?.watch_region} )</p>
                 <div className="filter2_movies_platform_div flex-nowrap md:grid lg:grid-cols-3 grid-cols-2 md:gap-6 gap-3 flex md:flex-none overflow-x-auto md:overflow-visible pt-6">
-                  {moviePlatforms.map((platform, index) => {
+                  {details?.watch_providers.map((platform, index) => {
                     const id = `${baseId}-platform-${index}`;;
                     return (
                       <div key={id} className="min-w-[120px] md:min-w-0">
@@ -550,7 +519,7 @@ export default function Card({ item, type,onClick,details})
                         >
                           <div className="bg-white rounded-full p-3 h-[54px] w-[54px] mx-auto">
                             <img
-                              src={platform.img}
+                              src={platform.image || "/defult23.png"}
                               alt={platform.name}
                               className="mx-auto w-[30px] h-[30px]"
                             />
@@ -568,28 +537,22 @@ export default function Card({ item, type,onClick,details})
                 <div>
                   <div className="pb-6 pt-9">
                     <h5 className="font-semibold pb-[5px]">Status</h5>
-                    <p className="font-light">Released</p>
+                    <p className="font-light">{details?.status}</p>
                   </div>
                   <div className="pb-6">
                     <h5 className="font-semibold pb-[5px]">
                       Original Theatrical Release
                     </h5>
-                    <p className="font-light">April 26, 2019</p>
+                    <p className="font-light">{details?.release_date}</p>
                   </div>
                   <div className="pb-6">
                     <h5 className="font-semibold pb-[5px]">
                       Original Language
                     </h5>
-                    <p className="font-light">English</p>
+                    <p className="font-light">{details?.original_language}</p>
                   </div>
-                  <div className="pb-6">
-                    <h5 className="font-semibold pb-[5px]">Budget</h5>
-                    <p className="font-light">$160,000,000.00</p>
-                  </div>
-                  <div className="pb-12">
-                    <h5 className="font-semibold pb-[5px]">Revenue</h5>
-                    <p className="font-light">$839,030,630.00</p>
-                  </div>
+                  
+                  
                 </div>
                 <div className="flex gap-6 justify-center items-center">
                   <span>Share</span>
