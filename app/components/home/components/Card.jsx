@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FaStar } from "react-icons/fa";
 import thumbs from "@/public/assets/thumbs-up.png";
 import pass from "@/public/assets/pass.png";
-import plus from "@/public/assets/plus.png";
+import plus from "@/public/assets/sign_in.png";
 import eye from "@/public/assets/eye.png";
 import Insta from "@/public/assets/Insta.png";
 import x from "@/public/assets/x.png";
@@ -20,6 +20,11 @@ import bookmark_white_2 from "@/public/assets/bookmark_white_2.png";
 import sign_in from "@/public/assets/sign_in.png";
 import star from "@/public/assets/star.png";
 import { useId, useRef } from "react";
+import { useRouter } from "next/navigation";
+
+
+
+
 
 // Helper function to get the correct bookmark icon path
 const getBookmarkIcon = (type) => {
@@ -41,14 +46,9 @@ export default function Card({ item, type,onClick,details})
 
 
 
-
-
-
-
-
-
-
 {
+
+  const router = useRouter();
 
   const data = details || item;// here 2 api dat are mearge  popular movie and movie by id 
 
@@ -489,14 +489,16 @@ export default function Card({ item, type,onClick,details})
                 </div>
               )}
               <div className="bg-black/30 p-6 w-full xl:max-w-[432px] lg:max-w-[380px] md:max-w-[300px] rounded-[20px] text-white relative">
-                <button className="bg-[#FF4F6D] hover:bg-[#FF4F6D] w-full rounded-full text-white py-[15px] flex gap-2.5 cursor-pointer justify-center mb-2.5">
-                  <Image src={plus} alt="plus" />
-                  <span>Watchlist</span>
-                </button>
-                <button className="border-1 border-[#7B808F] w-full rounded-full text-white py-[15px] flex gap-2.5 cursor-pointer justify-center mb-6">
-                  <Image src={eye} alt="eye" />
-                  <span>Marked as Watched</span>
-                </button>
+
+
+               <button
+      onClick={() => router.push("/sign_in")} // এখানে correct route
+      className="bg-[#8A38F5] hover:opacity-90 w-full rounded-full text-white py-[15px] flex gap-2.5 justify-center items-center mb-6"
+    >
+      <Image src={plus} alt="plus" width={24} height={24} />
+      <span>Sign Up to Bookmark</span>
+    </button>
+                
                 <p className="font-semibold">Watch Now  
                 ( {details?.watch_region} )</p>
                 <div className="filter2_movies_platform_div flex-nowrap md:grid lg:grid-cols-3 grid-cols-2 md:gap-6 gap-3 flex md:flex-none overflow-x-auto md:overflow-visible pt-6">

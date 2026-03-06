@@ -1,6 +1,7 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import React from "react";
+import { ClerkProvider } from "@clerk/nextjs";
 
 // Load only Poppins
 const poppins = Poppins({
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased bg-[#10172A]`}>
-        {children}
+      <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
   );
