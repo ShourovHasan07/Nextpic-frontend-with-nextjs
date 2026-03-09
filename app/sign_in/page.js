@@ -36,46 +36,19 @@ export default function Home() {
 
 
 
-  const handleNextPickLogin = async () => {
-
+   // Frontend triggered login (optional, mostly for session creation)
+   const handleNextPickLogin = async () => {
     if (!isSignedIn) {
-      openSignIn();
+      openSignIn({
+        redirectUrl: "/",
+      });
       return;
     }
-
+  
     setLoading(true);
-
-
-   
-   try {
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/frontend/auth/clerk-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          clerkId: user.id,
-          email: user.emailAddresses[0].emailAddress,
-          name: user.fullName
-        })
-      });
-
-      const data = await res.json();
-
-      console.log(data);
-
-      alert("Login success");
-
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    }
-
     setLoading(false);
   };
-  };
-;
+
 
 
 
