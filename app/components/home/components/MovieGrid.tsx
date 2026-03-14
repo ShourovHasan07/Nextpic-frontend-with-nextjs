@@ -98,15 +98,19 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true); // check if more movies available
 
+
+
   //  declare selectedMovie state
   const [selectedMovieDetails, setSelectedMovieDetails] =
   useState<MovieDetails | null>(null);
+
+  
   // fetch movies
   const getMovies = async (pageNumber = 1) => {
     setLoading(true);
     try {
       let url = moodId ? `/moods/${moodId}/movies?page=${pageNumber}` : `/home?page=${pageNumber}`;
-      console.log("Calling API URL:", `${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`);
+     // console.log("Calling API URL:", `${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`);
 
       const data = await FrontendApiHelper(url);
 

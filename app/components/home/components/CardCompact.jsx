@@ -20,6 +20,7 @@ import BooksBMd from "@/public/assets/BooksBMd.png";
 import bookmark_white_2 from "@/public/assets/bookmark_white_2.png";
 import sign_in from "@/public/assets/sign_in.png";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 // Helper function to get the correct bookmark icon path
 const getBookmarkIcon = (type) => {
@@ -37,10 +38,29 @@ const getBookmarkIcon = (type) => {
   }
 };
 
-export default function Card({ item, type }) {
+export default function Card({ item, type,onClick,details }) {
 
 
-  //console.log ("item from series card",item)
+  
+
+
+
+  const router = useRouter();
+  
+    const data = details || item;// here 2 api dat are mearge  popular movie and movie by id 
+  
+     console.log ("detailsData in card jsx component props ",details)
+
+
+     const openModal = async () => {
+    if (onClick) {
+      await onClick(); // 
+    }
+    modalRef.current?.showModal(); 
+  };
+
+
+  
 
 
   const bookmarkIcon = getBookmarkIcon(type);
@@ -56,9 +76,9 @@ export default function Card({ item, type }) {
   // Reference for bookmark modal
   const bookmarkModalRef = useRef(null);
 
-  const openModal = () => {
-    modalRef.current?.showModal(); // open main card modal
-  };
+  // const openModal = () => {
+  //   modalRef.current?.showModal(); // open main card modal
+  // };
 
   const closeModal = () => {
     modalRef.current?.close(); // close main card modal
@@ -311,7 +331,7 @@ export default function Card({ item, type }) {
                       }}
                     >
                       <span className="md:text-xl font-bold text-white">
-                        75%
+                       {data?.percentage}%
                       </span>
                     </div>
                   </div>
@@ -346,12 +366,7 @@ export default function Card({ item, type }) {
                     Overview
                   </h4>
                   <p className="text-base">
-                    The epic conclusion to over a decade of storytelling in the
-                    Marvel Cinematic Universe, Avengers: Endgame picks up in the
-                    aftermath of the devastating events of Infinity War (2018).
-                    With half of all life across the universe erased by Thanos
-                    snap, the remaining Avengers must regroup, mourn, and find a
-                    way to undo the destruction.
+                      {data.description}
                   </p>
                   <p className="text-base pt-6 pb-2.5">
                     <span className="font-semibold">Directors: </span>
@@ -451,27 +466,27 @@ export default function Card({ item, type }) {
                 </div>
               ) : (
                 /* Cast section */
-                <div className="md:grid flex xl:gap-6 gap-4 overflow-x-auto grid-cols-2 xl:grid-cols-4 lg:grid-cols-3 max-w-[888px] w-full">
-                  {avengers.map((hero, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-[20px] h-full overflow-hidden transition-transform duration-300 min-w-[180px] md:min-w-auto"
-                    >
-                      <div className="relative w-full h-48">
-                        <Image
-                          src={hero.img}
-                          alt={hero.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="p-4 text-center text-white bg-black/30 h-full">
-                        <h4 className="font-bold">{hero.name}</h4>
-                        <p className="text-white">({hero.role})</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+               <div className="md:grid flex xl:gap-6 gap-4 overflow-x-auto grid-cols-2 xl:grid-cols-4 lg:grid-cols-3 max-w-[888px] w-full">
+                                {details?.top_cast?.map((hero, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="rounded-[20px] h-full overflow-hidden transition-transform duration-300 min-w-[180px] md:min-w-auto"
+                                  >
+                                    <div className="relative w-full  h-48">
+                                      <Image
+                                        src={hero?.image || "/chris.png"}
+                                        alt={hero.name}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                    <div className="p-4 text-center text-white bg-black/30 h-full">
+                                      <h4 className="font-bold">{hero.name}</h4>
+                                      <p className="text-white">({hero.character})</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
               )}
               <div className="bg-black/30 p-6 w-full xl:max-w-[432px] lg:max-w-[380px] md:max-w-[300px] rounded-[20px] text-white relative">
                 <button className="bg-[#FF4F6D] hover:bg-[#FF4F6D] w-full rounded-full text-white py-[15px] flex gap-2.5 cursor-pointer justify-center mb-2.5">
@@ -482,9 +497,9 @@ export default function Card({ item, type }) {
                   <Image src={eye} alt="eye" />
                   <span>Marked as Watched</span>
                 </button>
-                <p className="font-semibold">Watch Now</p>
+                <p className="font-semibold">Watch Now  ( {details?.watch_region} ) </p>
                 <div className="filter2_movies_platform_div flex-nowrap md:grid lg:grid-cols-3 grid-cols-2 md:gap-6 gap-3 flex md:flex-none overflow-x-auto md:overflow-visible pt-6">
-                  {moviePlatforms.map((platform, index) => {
+                  {details?.watch_providers.map((platform, index) => {
                     const id = `platform_new_${index + Math.random()}`;
                     return (
                       <div key={id} className="min-w-[120px] md:min-w-0">
@@ -503,7 +518,7 @@ export default function Card({ item, type }) {
                         >
                           <div className="bg-white rounded-full p-3 h-[54px] w-[54px] mx-auto">
                             <img
-                              src={platform.img}
+                              src={platform.image}
                               alt={platform.name}
                               className="mx-auto w-[30px] h-[30px]"
                             />
@@ -521,28 +536,22 @@ export default function Card({ item, type }) {
                 <div>
                   <div className="pb-6 pt-9">
                     <h5 className="font-semibold pb-[5px]">Status</h5>
-                    <p className="font-light">Released</p>
+                    <p className="font-light">{details?.status}</p>
                   </div>
                   <div className="pb-6">
                     <h5 className="font-semibold pb-[5px]">
                       Original Theatrical Release
                     </h5>
-                    <p className="font-light">April 26, 2019</p>
+                    <p className="font-light">{details?.release_date}</p>
                   </div>
                   <div className="pb-6">
                     <h5 className="font-semibold pb-[5px]">
                       Original Language
                     </h5>
-                    <p className="font-light">English</p>
+                    <p className="font-light">{details?.original_language}</p>
                   </div>
-                  <div className="pb-6">
-                    <h5 className="font-semibold pb-[5px]">Budget</h5>
-                    <p className="font-light">$160,000,000.00</p>
-                  </div>
-                  <div className="pb-12">
-                    <h5 className="font-semibold pb-[5px]">Revenue</h5>
-                    <p className="font-light">$839,030,630.00</p>
-                  </div>
+                  
+                  
                 </div>
                 <div className="flex gap-6 justify-center items-center">
                   <span>Share</span>

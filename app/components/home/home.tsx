@@ -32,7 +32,12 @@ export default function Home() {
       />
       <MovieGrid moodId={selectedMood} 
         showSecondaryFilter={showSecondaryFilter}  />
-      <SeriesGrid moodId={selectedMood} />
+
+
+      <SeriesGrid moodId={selectedMood}
+      
+      showSecondaryFilter={showSecondaryFilter}/>
+
       <GameGrid/>
       <BookGrid/>
     </div>

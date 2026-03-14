@@ -52,7 +52,7 @@ export default function Card({ item, type,onClick,details})
 
   const data = details || item;// here 2 api dat are mearge  popular movie and movie by id 
 
-   console.log ("detailsData in card jsx component props ",details)
+   //console.log ("detailsData in card jsx component props ",details)
 
 
 
@@ -492,7 +492,7 @@ export default function Card({ item, type,onClick,details})
 
 
                <button
-      onClick={() => router.push("/sign_in")} // এখানে correct route
+      onClick={() => router.push("/sign_in")} // correct route
       className="bg-[#8A38F5] hover:opacity-90 w-full rounded-full text-white py-[15px] flex gap-2.5 justify-center items-center mb-6"
     >
       <Image src={plus} alt="plus" width={24} height={24} />

@@ -6,6 +6,7 @@ import { FrontendApiHelper } from "@/app/utils/frontendApiHelper";
 
 
 import SeriesCard from "./CardCompact";
+import { getRegion } from "@/app/utils/getRegion";
 
 
 
@@ -23,6 +24,7 @@ export interface Movie {
 
   interface SeriesGridProps {
   moodId: string;
+  showSecondaryFilter: boolean;
 }
 
 
@@ -83,7 +85,13 @@ const moviePlatforms = [
     { name: "HBO Max", img: "/assets/hbo.png" }
 ];
 
-export function SeriesGrid({ moodId }: SeriesGridProps) {
+export function SeriesGrid({ moodId,showSecondaryFilter }: SeriesGridProps) {
+
+
+
+
+
+
 
     const [Seriess, setSeries] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +101,7 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
   const [page, setPage] = useState(1); // page for Show More
   const [hasMore, setHasMore] = useState(true);
 
-   const [selectedMovieDetails, setSelectedMovieDetails] =
+   const [selectedSeriesDetails, setSelectedSeriesDetails] =
     useState<SeriesDetails | null>(null);
   
   
@@ -175,6 +183,28 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
    }
  };
 
+
+ 
+ const getSeriesDetails = async (id: number) => {
+     try {
+     const region = getRegion(); // automatically detect region
+ 
+      console.log("Detected region:", region);
+     const res = await FrontendApiHelper(`/details/series/${id}?type=1`);
+       if (res && res.success) {
+         setSelectedSeriesDetails(res.data); //  set state to send to Card
+         return res.data;
+       }
+     } catch (err) {
+       console.error("series details fetch error:", err);
+     }
+     return null;
+   };
+
+
+
+
+
    //  initial load
   useEffect(() => {
     getSeries(1);
@@ -215,7 +245,12 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
     return (
         <div className="min-[769px]:px-12 px-4">
             <h3 className="cards_section_title_compact_2 pt-0">Series</h3>
-            {/* compact filter */}
+
+             {/* secondary filters */}
+      {showSecondaryFilter && (
+
+
+          
             <div>
                 <div className="movie_reset_2_div">
                     <p className="movie_reset_2_text">Genres (Choose a Genre)</p>
@@ -276,14 +311,33 @@ export function SeriesGrid({ moodId }: SeriesGridProps) {
                 <p className="card_pass_message">Click pass to remove already watched/unwanted items</p>
             </div>
 
-            {/* Responsive Container */}
+             )}
+
+            {/* series Cards */}
             <div className="pb-4">
                 <div
                     className="cards_grid_section_compact min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr pb-2"
                 >
                     {Seriess.map((series, index) => (
                         <div className="min-w-[207px] flex-shrink-0 md:flex-shrink min-[769px]:min-w-0" key={index}>
-                            <SeriesCard item={series} type="series" />
+
+                          
+                            <SeriesCard 
+                            
+                            
+                            
+                             key={series.id}
+  item={series}
+  type="series"
+  details={
+    selectedSeriesDetails?.id === series.id
+      ? selectedSeriesDetails
+      : null
+  }
+  onClick={() => getSeriesDetails(series.id!)}
+                            
+                            
+                            />
                         </div>
                     ))}
                 </div>
