@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/assets/logo.svg";
 import user from "@/public/assets/user.png";
@@ -32,8 +32,63 @@ import undo from "@/public/assets/undo.png";
 import undo_black from "@/public/assets/undo_black.png";
 import view_black from "@/public/assets/view_black.png";
 
+
+// Profile  interface
+interface Profile {
+  id: string;
+  name: string;
+  image?: string | null;
+  memberSince: string;
+  //  add 
+}
+
+// API response type
+interface ProfileResponse {
+  success: boolean;
+  data: Profile | null;
+  message: string;
+}
+
+
 export default function Home() {
-  const [selected, setSelected] = useState("bookmarked");
+
+ const [selected, setSelected] = useState("bookmarked");
+
+
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(false);
+
+const getProfile = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("/api/profile");
+
+    
+
+
+    const data: ProfileResponse = await res.json();
+
+
+      console.log ("(profile response", data)
+
+
+    if (data.success && data.data) setProfile(data.data);
+    else setProfile(null);
+  } catch (err) {
+    console.error(err);
+    setProfile(null);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    getProfile();
+  }, []);
+
+
+ 
   return (
     <div className="min-[769px]:pb-20 pb-10">
       {/* navbar */}
@@ -55,8 +110,8 @@ export default function Home() {
               <div className="profile_heading_left_container_div1">
                 <div className="profile_img_main_div1">
                   <Image
-                    src={evans}
-                    alt="evans"
+               src={profile?.profile?.image || "/default-avatar.png"}
+  alt="profile"
                     className="profile_img_heading_left"
                     height={164}
                     width={164}
@@ -65,10 +120,10 @@ export default function Home() {
                 <div className="xl:flex gap-8 items-start flex-wrap">
                   <div>
                     <h3 className="profile_img_heading_left_name">
-                      Alex Rodriguez
+                     {}
                     </h3>
                     <p className="profile_img_heading_left_subtitle">
-                      annanovas71@gmail.com
+                     {profile?.profile?.email}
                     </p>
                     <div className="profile_page_btns_div">
                       <button className="premium_member_btn">
@@ -77,7 +132,15 @@ export default function Home() {
                       </button>
                       <div className="profile_calender_div">
                         <Image src={calender} alt="calender" />
-                        <span>Member since July 2025</span>
+                       <span>
+  Member since{" "}
+  {profile?.profile?.memberSince
+    ? new Date(profile.profile.memberSince).toLocaleString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : ""}
+</span>
                       </div>
                     </div>
                   </div>
@@ -126,15 +189,15 @@ export default function Home() {
         <div className="profile_detail_section_grid">
           <div>
             <p className="profile_page_labels">Name</p>
-            <p>Alex Rodriguez</p>
+            <p>  {profile?.profile?.name}</p>
           </div>
           <div>
             <p className="profile_page_labels">User ID</p>
-            <p>user-265315</p>
+            <p>user-{profile?.profile?.id}</p>
           </div>
           <div>
             <p className="profile_page_labels">Email</p>
-            <p>alexrodriguez@mail.com</p>
+            <p>{profile?.profile?.email}</p>
           </div>
           <div>
             <p className="profile_page_labels">Phone</p>
@@ -523,7 +586,7 @@ export default function Home() {
               </h3>
               <div className="profile_cards_grid_section min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr mb-6 pb-1.5">
                 {/* card 1 */}
-                {dummyBooks.slice(0, 5).map((movie, index) => (
+                {profile?.hidden?.movies?.map((movie, index) => (
                   <div
                     className="min-w-[207px] flex-shrink min-[769px]:min-w-0"
                     key={index}
