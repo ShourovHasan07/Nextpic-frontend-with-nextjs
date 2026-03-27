@@ -1,16 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-
-
-   reactStrictMode: true,
+  reactStrictMode: true,
   images: {
-    domains: ["image.tmdb.org"], // <-- Add this
+    domains: [
+      "image.tmdb.org",
+      "images.clerk.dev", // ✅ Add this
+    ],
   },
-
-
-
 };
 
 export default nextConfig;

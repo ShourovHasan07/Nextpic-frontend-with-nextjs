@@ -7,7 +7,7 @@ export async function GET() {
     const res = await fetch("http://localhost:8002/frontend/profile/dashboard", { cache: "no-store" });
     const result = await res.json();
 
-    console.log("Backend result:", result);
+    //console.log("Backend result:", result);
 
     if (result?.success) {
       return NextResponse.json({

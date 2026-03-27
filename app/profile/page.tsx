@@ -31,24 +31,39 @@ import undo_btn from "@/public/assets/view_white.png";
 import undo from "@/public/assets/undo.png";
 import undo_black from "@/public/assets/undo_black.png";
 import view_black from "@/public/assets/view_black.png";
+import Navbar from "../components/home/components/Navbar";
 
 
 // Profile  interface
-interface Profile {
-  id: string;
-  name: string;
-  image?: string | null;
-  memberSince: string;
-  //  add 
+interface Movie {
+  id: number;
+  title: string;
+  image: string | null;
+  rating: number;
 }
 
-// API response type
+interface ProfileData {
+  profile: {
+    id: string;
+    email: string;
+    name: string;
+    image: string;
+    memberSince: string;
+  };
+  hidden: {
+    movies: Movie[];
+    series: any[];
+  };
+  bookmarks: any[];
+  subscription: any;
+  transactions: any[];
+}
+
 interface ProfileResponse {
   success: boolean;
-  data: Profile | null;
+  data: ProfileData;
   message: string;
 }
-
 
 export default function Home() {
 
@@ -56,25 +71,21 @@ export default function Home() {
 
 
 
-  const [profile, setProfile] = useState<Profile | null>(null);
+ const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
 const getProfile = async () => {
   setLoading(true);
   try {
     const res = await fetch("/api/profile");
-
-    
-
-
     const data: ProfileResponse = await res.json();
 
+    console.log("API Response:", data);
 
-      console.log ("(profile response", data)
-
-
-    if (data.success && data.data) setProfile(data.data);
-    else setProfile(null);
+    if (data.success) {
+      setProfile(data.data); //  correct
+    }
   } catch (err) {
     console.error(err);
     setProfile(null);
@@ -92,16 +103,9 @@ const getProfile = async () => {
   return (
     <div className="min-[769px]:pb-20 pb-10">
       {/* navbar */}
-      <div className="navbar_div">
-        <Link href="/">
-          <Image src={logo} alt="logo" />
-        </Link>
-        <div className="profile_img_div1">
-          <div className="profile_img_div2">
-            <Image src={user} alt="user" className="h-[26px] w-[26px]" />
-          </div>
-        </div>
-      </div>
+
+      <Navbar/>
+    
       {/* profile heading section */}
       <div className="profile_heading_div">
         <div className="profile_heading_container">
@@ -110,7 +114,7 @@ const getProfile = async () => {
               <div className="profile_heading_left_container_div1">
                 <div className="profile_img_main_div1">
                   <Image
-               src={profile?.profile?.image || "/default-avatar.png"}
+               src={profile?.profile?.image || evans}
   alt="profile"
                     className="profile_img_heading_left"
                     height={164}
@@ -455,7 +459,7 @@ const getProfile = async () => {
                 alt="eye"
                 className="h-5 w-5 md:h-auto md:w-auto"
               />
-              <p>Passed ({dummyBooks.filter((b) => b.passed).length})</p>
+             <p>Passed ({profile?.hidden?.movies?.length || 0})</p>
             </label>
           </div>
         </div>
@@ -582,14 +586,14 @@ const getProfile = async () => {
             {/* profile page card grid */}
             <div className="saved_page_container_sm px-0">
               <h3 className="cards_section_title pt-6 pb-5 text-2xl font-semibold">
-                Books
+                Movies
               </h3>
               <div className="profile_cards_grid_section min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr mb-6 pb-1.5">
                 {/* card 1 */}
                 {profile?.hidden?.movies?.map((movie, index) => (
                   <div
                     className="min-w-[207px] flex-shrink min-[769px]:min-w-0"
-                    key={index}
+                    key={movie.id}
                   >
                     <div className="saved_compact_page_card_container">
                       {/* Image section */}
@@ -621,7 +625,7 @@ const getProfile = async () => {
                             height={14}
                             className="pb-0.5"
                           />
-                          <span>Series</span>
+                          <span>movies</span>
                         </div>
                         {/* Book tag */}
                         {/* <div className="profile_card_category_tag text-[#0C8CE9]">
@@ -689,12 +693,133 @@ const getProfile = async () => {
                 ))}
               </div>
             </div>
+
+
+
+           {/* series div  */}
+
+           {showAll &&
+
+            <div className="saved_page_container_sm px-0">
+              <h3 className="cards_section_title pt-6 pb-5 text-2xl font-semibold">
+                Series
+              </h3>
+              <div className="profile_cards_grid_section min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr mb-6 pb-1.5">
+                {/* card 1 */}
+                {profile?.hidden?.series?.map((serie, index) => (
+                  <div
+                    className="min-w-[207px] flex-shrink min-[769px]:min-w-0"
+                    key={serie.id}
+                  >
+                    <div className="saved_compact_page_card_container">
+                      {/* Image section */}
+                      <div className="relative overflow-hidden max-h-[303px] cursor-pointer h-full group">
+                        <Image
+                          src={serie.image}
+                          alt="movie2"
+                          width={207}
+                          height={311}
+                          className="card_poster_img h-full"
+                        />
+
+                        {/* Movie tag */}
+                        {/* <div className="profile_card_category_tag">
+                                                    <Image
+                                                        src={movie_card_icon}
+                                                        alt="movie_card_icon"
+                                                        width={14}
+                                                        height={14}
+                                                    />
+                                                    <span>Movies</span>
+                                                </div> */}
+                        {/* Series tag */}
+                        <div className="profile_card_category_tag text-[#F316B0]">
+                          <Image
+                            src={series_card_icon}
+                            alt="series_card_icon"
+                            width={14}
+                            height={14}
+                            className="pb-0.5"
+                          />
+                          <span>series</span>
+                        </div>
+                        {/* Book tag */}
+                        {/* <div className="profile_card_category_tag text-[#0C8CE9]">
+                                            <Image
+                                                src={book_card_icon}
+                                                alt="book_card_icon"
+                                                width={14}
+                                                height={14}
+                                            />
+                                            <span>Books</span>
+                                        </div> */}
+
+                        {/* mobile menu dots */}
+                        <div className="dropdown dropdown-end absolute top-3 right-3 z-10 min-[769px]:hidden block">
+                          <div
+                            tabIndex={0}
+                            role="button"
+                            className="mobile_menu_dots bg-[#0C8CE9]"
+                          >
+                            <Image src={menu_dots} alt="menu_dots" />
+                          </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-white rounded-box z-1 w-[183px] p-2 text-[#10172A] mt-1"
+                          >
+                            <li>
+                              <a className="flex justify-end">
+                                {" "}
+                                <Image src={view_black} alt="View" />{" "}
+                                <span>View Details</span>
+                              </a>
+                            </li>
+                            <li>
+                              <a className="flex justify-end">
+                                <Image src={undo_black} alt="View" />{" "}
+                                <span>Undo</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+
+                        {/* Title gradient at bottom */}
+                        <div className="saved_compact_page_card_title_gradient">
+                          <h3 className="card_title pl-3 pb-3">
+                            {serie.title}
+                          </h3>
+                        </div>
+
+                        {/* Hover overlay with Undo button */}
+                        <div className="saved_compact_page_card_overlay">
+                          <button className="view_compact_page_card_undo_btn bg-[#0C8CE9] hover:bg-[#0D7DCF]">
+                            <Image src={undo_btn} alt="undo_btn" />
+                            <span>View Details</span>
+                          </button>
+                          <button
+                            className={`saved_compact_page_card_undo_btn`}
+                          >
+                            <Image src={undo} alt="undo_btn" />
+                            <span>Undo</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>}
           </div>
         )}
 
         <div className="item_center">
-          <button className="book_show_more_btn">Show All</button>
-        </div>
+  <button
+    className="book_show_more_btn"
+    onClick={() => setShowAll(!showAll)}
+  >
+    {showAll ? "Show Less" : "Show More"}
+  </button>
+</div>
       </div>
       {/* Account management section */}
       <div className="profile_page_section_container">
