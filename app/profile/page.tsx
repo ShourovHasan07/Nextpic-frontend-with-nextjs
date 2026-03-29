@@ -99,6 +99,33 @@ const getProfile = async () => {
   }, []);
 
 
+
+  
+  const subscriptionEndDate = profile?.subscription?.endDate;
+
+const renewText = subscriptionEndDate
+  ? (() => {
+      const now = new Date();
+      const end = new Date(subscriptionEndDate);
+      const diffTime = end - now;
+
+      if (diffTime > 0) {
+        // difference in days
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // convert to weeks
+        const diffWeeks = Math.ceil(diffDays / 7);
+
+        return `Your subscription will renew in ${diffWeeks} week${diffWeeks > 1 ? "s" : ""} from now`;
+      } else {
+        return "Your subscription has expired";
+      }
+    })()
+  : "No active subscription";
+
+
+
+
  
   return (
     <div className="min-[769px]:pb-20 pb-10">
@@ -227,11 +254,11 @@ const getProfile = async () => {
               </div>
               <div>
                 <p>Current Plan</p>
-                <h3 className="subscription_detail_card_title">Premium</h3>
+                <h3 className="subscription_detail_card_title">{profile?.subscription?.interval}ly Premium</h3>
               </div>
             </div>
             <p>Unlimited recommendations and advanced features</p>
-            <h3 className="subscription_detail_card_prices">$9.99/month</h3>
+            <h3 className="subscription_detail_card_prices">$10/month</h3>
             <button className="subscription_detail_card_subscrive_btn" onClick={()=>document.getElementById('my_modal_2').showModal()}>
               Cancel Subscription
             </button>
@@ -273,15 +300,21 @@ const getProfile = async () => {
                 <Image src={calender} alt="calender" />
               </div>
               <div>
-                <p>Next Renewal</p>
+                <p>Expired In</p>
                 <h3 className="subscription_detail_card_title">
-                  December 15, 2026
+                {profile?.subscription?.endDate
+  ? new Date(profile.subscription.endDate).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
+  : ""}
                 </h3>
                 {/* <p className="text-[#00DDA9]">Auto-renewed enabled</p> */}
               </div>
             </div>
             <p className="subscription_detail_card_hr">
-              Your subscription will renew in 9 days
+            {renewText}
             </p>
             <div className="subscription_detail_card_auto_renew_div pb-[15px]">
               <p>Auto-Renewal Status</p>
@@ -296,7 +329,9 @@ const getProfile = async () => {
           </div>
         </div>
         <h5 className="transection_heading">Recent Transactions</h5>
-        <div className="flex flex-col min-[769px]:gap-6 gap-4 min-[769px]:pb-12 pb-4">
+
+        {profile?.transactions.map((txn) => (
+        <div key={txn._id} className="flex flex-col min-[769px]:gap-6 gap-4 min-[769px]:pb-12 pb-4">
           {/* card 1 */}
           <div className="subscription_detail_card_div">
             <div className="transaction_card_div_inner">
@@ -309,76 +344,35 @@ const getProfile = async () => {
               <div className="transaction_card_plan_div">
                 {/* Plan Details Div */}
                 <div>
-                  <p>TxnID: 3XYZ1234AB</p>
+                <p>TxnID: {txn.stripeInvoiceId}</p>
                   <h3 className="subscription_detail_card_title py-0 min-[769px]:py-1">
                     Premium Plan
                   </h3>
-                  <p>Jul 15, 2025</p>
+                  <p>
+              {new Date(txn.paidAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
                 </div>
                 <div>
-                  <p className="subscription_price_profile">$9.99</p>
-                  <button className="compleated_btn_subscribtion">
-                    Completed
-                  </button>
+                <p className="subscription_price_profile">${txn.amount / 100}</p>
+            <button
+              className={
+                txn.status === "paid"
+                  ? "compleated_btn_subscribtion"
+                  : "cancelled_btn_subscribtion"
+              }
+            >
+              {txn.status === "paid" ? "Completed" : "Cancelled"}
+            </button>
                 </div>
               </div>
             </div>
           </div>
-          {/* card 2 */}
-          <div className="subscription_detail_card_div">
-            <div className="transaction_card_div_inner">
-              {/* Image Div */}
-              <div className="transaction_img_div bg-gradient-to-b from-[#FF97B8] to-[#E5396A]">
-                <Image src={credit_card} alt="credit_card" />
-              </div>
-
-              {/* Plan and Price Parent Div */}
-              <div className="transaction_card_plan_div">
-                {/* Plan Details Div */}
-                <div>
-                  <p>TxnID: 3XYZ1234AB</p>
-                  <h3 className="subscription_detail_card_title py-0 min-[769px]:py-1">
-                    Premium Plan
-                  </h3>
-                  <p>Jul 15, 2025</p>
-                </div>
-                <div>
-                  <p className="subscription_price_profile">$9.99</p>
-                  <button className="cancelled_btn_subscribtion">
-                    Cancelled
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* card 3 */}
-          <div className="subscription_detail_card_div">
-            <div className="transaction_card_div_inner">
-              {/* Image Div */}
-              <div className="transaction_img_div bg-gradient-to-b from-[#97FFEA] to-[#00B187]">
-                <Image src={credit_card} alt="credit_card" />
-              </div>
-
-              {/* Plan and Price Parent Div */}
-              <div className="transaction_card_plan_div">
-                {/* Plan Details Div */}
-                <div>
-                  <p>TxnID: 3XYZ1234AB</p>
-                  <h3 className="subscription_detail_card_title py-0 min-[769px]:py-1">
-                    Premium Plan
-                  </h3>
-                  <p>Jul 15, 2025</p>
-                </div>
-                <div>
-                  <p className="subscription_price_profile">$9.99</p>
-                  <button className="compleated_btn_subscribtion">
-                    Completed
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          
+        </div>))}
         <div className="item_center">
           <button className="book_show_more_btn">Load More</button>
         </div>
