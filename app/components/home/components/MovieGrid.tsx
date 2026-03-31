@@ -172,6 +172,47 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
     return null;
   };
 
+
+
+  const handlePass = (id) => {
+  setMovies((prev) => prev.filter((movie) => movie.id !== id));
+};
+
+
+
+
+
+  // pass movie
+
+  const passMovie = async (id) => {
+  try {
+    // 1. UI  remove first
+    onPass?.(id);
+
+    // 2. Backend call
+    const response = await fetch("http://localhost:8002/frontend/home/pass", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        type: 1,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Server error:", data);
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
+
+
+
   // initial load
   useEffect(() => {
     getMovies(1);
@@ -254,7 +295,7 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
         <div className="cards_grid_section min-[769px]:overflow-visible overflow-x-auto scrollbar-hide auto-rows-fr">
           {movies.map((movie, index) => (
             <div className="min-w-[207px] flex-shrink-0 md:flex-shrink min-[769px]:min-w-0" key={movie.id ?? index}>
-              <MovieCard
+              <MovieCard 
   key={movie.id}
   item={movie}
   type="movie"
@@ -264,7 +305,13 @@ export function MovieGrid({ moodId, showSecondaryFilter }: MovieGridProps) {
       : null
   }
   onClick={() => getMovieDetails(movie.id!)}
+
+   onPass={handlePass}
+
+
 />
+
+
             </div>
           ))}
         </div>

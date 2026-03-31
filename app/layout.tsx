@@ -2,6 +2,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "react-hot-toast";
+import Navbar from "./components/home/components/Navbar";
 
 // Load only Poppins
 const poppins = Poppins({
@@ -28,7 +30,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased bg-[#10172A]`}>
-      <ClerkProvider>{children}</ClerkProvider>
+      <ClerkProvider>
+        <Navbar />
+        <Toaster 
+            position="top-right" 
+            reverseOrder={false} 
+          />
+
+
+        {children}
+        </ClerkProvider>
       </body>
     </html>
   );

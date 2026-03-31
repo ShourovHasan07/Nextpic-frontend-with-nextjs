@@ -1,7 +1,7 @@
-  "use client";
+ 
 
 
-
+"use client"
 
 import Navbar from './components/Navbar';
 import Filter from './components/Filter';
@@ -25,7 +25,7 @@ export default function Home() {
 
 
     <div className="container_fluid md:pb-20 pb-10">
-      <Navbar/>
+   
        <Filter 
         onMoodSelect={setSelectedMood} 
         onToggleFilter={() => setShowSecondaryFilter(prev => !prev)}

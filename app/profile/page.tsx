@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+
+import { toast } from "react-hot-toast"; 
+
+import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+
+
+
 import logo from "@/public/assets/logo.svg";
 import user from "@/public/assets/user.png";
 import evans from "@/public/assets/evans.png";
@@ -69,11 +77,17 @@ export default function Home() {
 
  const [selected, setSelected] = useState("bookmarked");
 
+ const [subscriptionStatus, setSubscriptionStatus] = useState("active"); 
+
+const [isProcessing, setIsProcessing] = useState(false); 
+
+
 
 
  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
 const getProfile = async () => {
   setLoading(true);
@@ -98,10 +112,113 @@ const getProfile = async () => {
     getProfile();
   }, []);
 
+  //logout function
+
+ const { clerk, isLoaded } = useClerk();
+const router = useRouter();
+
+const handleLogout = async () => {
+    
+
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      await clerk.signOut();
+      toast.success("Logged out successfully!");
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("Logout failed! Try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+// Cancel Subscription function
+const handleCancelSubscription = async () => {
+  setIsProcessing(true); 
+
+  try {
+    const response = await fetch(
+      "http://localhost:8002/frontend/subscription/cancel/sub_1TFg9iRpxYsHy56wXpsuGIhZ",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+     
+      setSubscriptionStatus("canceled");
+
+    
+      toast.success("Subscription canceled successfully!");
+
+     
+      const modal = document.getElementById("my_modal_2") as HTMLDialogElement;
+      modal?.close();
+    } else {
+      toast.error("Cancel failed! Try again.");
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong!");
+  } finally {
+    setIsProcessing(false); 
+  }
+};
+
+
+// Enable Auto-Renew function
+const handleEnableAutoRenew = async () => {
+  setIsProcessing(true);
+  try {
+    const response = await fetch(
+      "http://localhost:8002/frontend/subscription/reactivate/sub_1TFg9iRpxYsHy56wXpsuGIhZ",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+    const data = await response.json();
+
+    if (data.success) {
+      setSubscriptionStatus("active"); // subscription reactivated
+     toast.success("Auto-Renew enabled successfully!!");
+    } else {
+       toast.error("Something went wrong!");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong!");
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
+
+
+
+
+
 
 
   
-  const subscriptionEndDate = profile?.subscription?.endDate;
+
+const subscriptionEndDate = profile?.subscription?.endDate;
+
+const subscription = profile?.subscription;
+
+
+const isAutoRenewal = !(subscription?.status === "canceled" && subscription?.canceledAt);
+
+const autoRenewStatus = isAutoRenewal ? "Enabled" : "Disabled";
+
+
 
 const renewText = subscriptionEndDate
   ? (() => {
@@ -110,13 +227,14 @@ const renewText = subscriptionEndDate
       const diffTime = end - now;
 
       if (diffTime > 0) {
-        // difference in days
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        // convert to weeks
         const diffWeeks = Math.ceil(diffDays / 7);
 
-        return `Your subscription will renew in ${diffWeeks} week${diffWeeks > 1 ? "s" : ""} from now`;
+        if (isAutoRenewal) {
+          return `Your subscription will renew in ${diffWeeks} week${diffWeeks > 1 ? "s" : ""} from now`;
+        } else {
+          return `Your subscription will expire in ${diffWeeks} week${diffWeeks > 1 ? "s" : ""}`;
+        }
       } else {
         return "Your subscription has expired";
       }
@@ -129,9 +247,7 @@ const renewText = subscriptionEndDate
  
   return (
     <div className="min-[769px]:pb-20 pb-10">
-      {/* navbar */}
-
-      <Navbar/>
+      
     
       {/* profile heading section */}
       <div className="profile_heading_div">
@@ -258,9 +374,28 @@ const renewText = subscriptionEndDate
             </div>
             <p>Unlimited recommendations and advanced features</p>
             <h3 className="subscription_detail_card_prices">$10/month</h3>
-            <button className="subscription_detail_card_subscrive_btn" onClick={()=>document.getElementById('my_modal_2').showModal()}>
-              Cancel Subscription
-            </button>
+            {/* Cancel Subscription Button */}
+{subscriptionStatus === "active" && (
+  <button className="subscription_detail_card_subscrive_btn" onClick={()=>document.getElementById('my_modal_2').showModal()}
+    
+    className="subscription_detail_card_subscrive_btn"
+  >
+    {isProcessing ? "Processing..." : "Cancel Subscription"}
+  </button>
+)}
+
+{/* Enable Auto-Renew Button */}
+{subscriptionStatus === "canceled" && (
+  <button
+    onClick={handleEnableAutoRenew}
+    disabled={isProcessing}
+    className="compleated_btn_subscribtion"
+  >
+    {isProcessing ? "Processing..." : "Enable Auto-Renew"}
+
+    
+  </button>
+)}
             {/* Bookmark Modal */}
             <dialog
               className="modal"
@@ -284,7 +419,12 @@ const renewText = subscriptionEndDate
                 </div>
                 <div className="subscription_modal_grid">
                   <button className="subscription_keep_btn" onClick={()=>document.getElementById('my_modal_2').close()}>Keep Subscription</button>
-                  <button className="subscription_cancle_btn">Confirm Cancel</button>
+                  <button className="subscription_cancle_btn"
+
+                  onClick={handleCancelSubscription}
+    disabled={isProcessing}
+                  
+                  >Confirm Cancel</button>
                 </div>
               </div>
               <form method="dialog" className="modal-backdrop">
@@ -298,6 +438,9 @@ const renewText = subscriptionEndDate
               <div className="subscription_detail_card_img_div bg-gradient-to-b from-[#97FFEA] to-[#00B187]">
                 <Image src={calender} alt="calender" />
               </div>
+
+
+
               <div>
                 <p>Expired In</p>
                 <h3 className="subscription_detail_card_title">
@@ -317,9 +460,9 @@ const renewText = subscriptionEndDate
             </p>
             <div className="subscription_detail_card_auto_renew_div pb-[15px]">
               <p>Auto-Renewal Status</p>
-              <button className="subscription_detail_card_enable_btn">
-                Enabled
-              </button>
+             <button className={subscription?.status === "active" ? "compleated_btn_subscribtion" : "cancelled_btn_subscribtion"}>
+      {autoRenewStatus}
+    </button>
             </div>
             {/* <div className="subscription_detail_card_auto_renew_div">
               <p>Renewal Amount</p>
@@ -943,9 +1086,18 @@ const renewText = subscriptionEndDate
           Manage your account settings and data
         </h2>
         <div className="account_profile_btn_div">
-          <button className="profile_log_out">
+          <button 
+          
+          className="profile_log_out"
+           onClick={handleLogout}
+          
+          
+          
+          >
+
+
             <Image src={sigh_out} alt="crown" />
-            <span>Log Out</span>
+            <span> {isLoggingOut ? "Logging out..." : "Logout"}</span>
           </button>
           <button className="profile_delete">
             <Image src={trash} alt="crown" />

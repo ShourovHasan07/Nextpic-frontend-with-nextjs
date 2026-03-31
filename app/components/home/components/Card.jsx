@@ -42,7 +42,11 @@ const getBookmarkIcon = (type) => {
   }
 };
 
-export default function Card({ item, type,onClick,details})
+export default function Card({ item, type,onClick,details,onPass})
+
+
+
+
 
 
 
@@ -55,6 +59,40 @@ export default function Card({ item, type,onClick,details})
    //console.log ("detailsData in card jsx component props ",details)
 
 
+
+
+  
+
+    
+   
+   // pass movie
+const passMovie = async (id) => {
+  try {
+    const response = await fetch("http://localhost:8002/frontend/home/pass", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        type: 1,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Success:", data);
+    } else {
+      console.error("Server error:", data);
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+  }
+};
+
+
+   
 
 
   
@@ -240,10 +278,13 @@ export default function Card({ item, type,onClick,details})
               <Image src={thumbs} alt="thumbs" />
               Like
             </button>
-            <button className="card_pass_btn">
-              <Image src={pass} alt="pass" />
-              Pass
-            </button>
+            <button
+  className="card_pass_btn"
+  onClick={() => onPass?.(data.id)}
+>
+  <Image src={pass} alt="pass" />
+  Pass
+</button>
           </div>
         </div>
       </div>
